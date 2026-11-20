@@ -116,6 +116,14 @@ let
         updatetime = 300;
         termguicolors = true;
         mouse = "a";
+        undofile = true;
+        ignorecase = true;
+        smartcase = true;
+        scrolloff = 6;
+        sidescrolloff = 4;
+        splitbelow = true;
+        breakindent = true;
+        confirm = true;
       };
       filetypes.extension = {
         cabal = "cabal";
@@ -229,8 +237,8 @@ in
     programs.neovim = {
       enable = true;
 
-      withRuby = true;
-      withPython3 = true;
+      withRuby = !minimal;
+      withPython3 = !minimal;
 
       package = pkgs.neovim-unwrapped;
       defaultEditor = true;
@@ -253,6 +261,8 @@ in
         ruff
         fourmolu
         prettier
+        rustfmt
+        beamPackages.elixir
       ]) ++ lib.unique (lib.catAttrs "package" lspServers);
 
       # Plugins are installed and pinned by Nixpkgs; no second plugin manager.
@@ -321,9 +331,6 @@ in
           config = readLua ./assets/nvim/plugin/noice.lua;
         }
 
-        # Obsidian requires a user-specific vault/workspace setup; keep installed
-        # for now rather than inventing a vault location in the shared config.
-        obsidian-nvim
         {
           plugin = persistence-nvim;
           type = "lua";

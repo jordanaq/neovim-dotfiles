@@ -4,8 +4,9 @@ Import `default.nix` as a Home Manager module. The dotfiles repository uses
 this module through its `user/utils/neovim` submodule.
 Set `dotfiles.neovim.minimal = true` on hosts that need only the
 Bash, Lua, Markdown, and Nix language servers and basic formatters.
-Minimal mode also restricts Tree-sitter parsers to those languages and omits
-the LTeX and VimTeX plugins. General-purpose editor plugins remain enabled.
+Minimal mode also restricts Tree-sitter parsers to those languages, omits
+the LTeX and VimTeX plugins, and disables the Ruby and Python providers.
+General-purpose editor plugins remain enabled.
 Home Manager installs the plugins from Nixpkgs. The OpenCode plugin uses a
 pinned upstream revision for compatibility with OpenCode 2 and loads on
 hosts with `programs.opencode.enable` enabled.
@@ -51,6 +52,8 @@ Heavily inspired by [Vimjoyer's Neovim guide](https://youtu.be/YZAnJ0rwREA?si=IJ
 | `sa`, `sd`, `sr` | Mini surround add/delete/replace |
 | `gc` | Mini comment |
 | `<leader>ot` | Toggle the OpenCode TUI in a Snacks terminal |
+| `<C-.>` | Toggle the OpenCode TUI from Normal or Terminal mode (terminal permitting) |
+| `<leader>uh` | Toggle inlay hints for the current buffer, when supported |
 | `<leader>oa` | Ask OpenCode about the visual selection or cursor |
 | `<leader>ox` | Open the OpenCode action picker |
 | `go` + motion, visual `go`, or `goo` | Send a range, selection, or line to OpenCode |
@@ -65,6 +68,11 @@ Formatting is **manual**. Prettier handles JavaScript, TypeScript, JSON, YAML,
 and Markdown. Elixir uses `mix format`, and Svelte uses its language server's
 formatter. Nix, Lua, shell, Python, Haskell, C/C++, and Rust keep their
 language-specific formatters.
+The full profile supplies the configured CLI formatters, including `clang-format`
+(via clang-tools), `rustfmt`, and Elixir's `mix`; minimal mode supplies only
+Nix, Lua, and shell formatters. Project-local tools may still affect formatting.
+Tree-sitter provides highlighting where a parser is available; indentation
+uses Neovim's filetype-specific defaults instead of experimental Tree-sitter indentation.
 
 LTeX+ checks `en-US` prose on save. Markdown and other prose formats use the
 self-hosted LanguageTool server over Tailscale, which receives the text being
@@ -73,8 +81,8 @@ checks style in projects with a `.vale.ini`.
 
 ## Deferred decisions
 
-- `obsidian.nvim` stays installed but requires your vault/workspace path
-  to enable it. Do not guess an Obsidian vault location here.
+- `obsidian.nvim` is not installed; add it back with a vault/workspace setup
+  if needed.
 - The current Tree-sitter all-grammars set is preserved for less common
   languages (notably SML). Prune parsers only after checking your workflow.
 

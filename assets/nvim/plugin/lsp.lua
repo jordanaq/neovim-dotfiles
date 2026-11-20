@@ -5,6 +5,16 @@ vim.lsp.config("*", {
   capabilities = capabilities,
 })
 
+vim.diagnostic.config({ severity_sort = true, float = { border = "rounded" } })
+
+-- The minimal profile does not install LTeX Extra.
+for _, server in ipairs(lsp_settings.lspServers) do
+  if server.name:match("^ltex") then
+    require("ltex_extra").setup(lsp_settings.ltexExtra)
+    break
+  end
+end
+
 -- Open diagnostic float for the line under the cursor
 vim.keymap.set("n", "gl", vim.diagnostic.open_float, { desc = "Show diagnostics" })
 
@@ -13,26 +23,31 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local bufnr = event.buf
     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
-    local function bufmap(keys, func)
-      vim.keymap.set("n", keys, func, { buffer = bufnr })
+    local function bufmap(keys, func, desc)
+      vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
     end
 
-    bufmap("<leader>r", vim.lsp.buf.rename)
-    bufmap("<leader>a", vim.lsp.buf.code_action)
+    bufmap("<leader>r", vim.lsp.buf.rename, "Rename symbol")
+    bufmap("<leader>a", vim.lsp.buf.code_action, "Code action")
 
-    bufmap("gd", vim.lsp.buf.definition)
-    bufmap("gD", vim.lsp.buf.declaration)
-    bufmap("gI", vim.lsp.buf.implementation)
-    bufmap("<leader>D", vim.lsp.buf.type_definition)
+    bufmap("gd", vim.lsp.buf.definition, "Go to definition")
+    bufmap("gD", vim.lsp.buf.declaration, "Go to declaration")
+    bufmap("gI", vim.lsp.buf.implementation, "Go to implementation")
+    bufmap("<leader>D", vim.lsp.buf.type_definition, "Go to type definition")
 
-    bufmap("gr", function() Snacks.picker.lsp_references() end)
-    bufmap("<leader>s", function() Snacks.picker.lsp_symbols() end)
-    bufmap("<leader>S", function() Snacks.picker.lsp_workspace_symbols() end)
+    bufmap("gr", function() Snacks.picker.lsp_references() end, "Find references")
+    bufmap("<leader>s", function() Snacks.picker.lsp_symbols() end, "Document symbols")
+    bufmap("<leader>S", function() Snacks.picker.lsp_workspace_symbols() end, "Workspace symbols")
 
-    bufmap("K", vim.lsp.buf.hover)
+    bufmap("K", vim.lsp.buf.hover, "Hover documentation")
+
+    if client and client:supports_method("textDocument/inlayHint", bufnr) then
+      bufmap("<leader>uh", function()
+        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
+      end, "Toggle inlay hints")
+    end
 
     if client and client.name:match("ltex") then
-      require("ltex_extra").setup(lsp_settings.ltexExtra)
       -- ltex_extra's reload looks up the client in the current buffer.
       vim.schedule(function()
         if not vim.lsp.buf_is_attached(bufnr, client.id) then
