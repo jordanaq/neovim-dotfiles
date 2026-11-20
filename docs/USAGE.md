@@ -120,37 +120,102 @@ Open Neovim from the intended project directory if you want `<leader>qs` to rest
 
 ### Hermes Agent (Agentic.nvim / ACP)
 
+**Open Hermes chat:** in Normal mode, press `<leader>ht` (**Space**, then **h**,
+then **t**). Agentic opens an interactive right-hand sidebar, configured to use
+40% of Neovim's width. Type a prompt in its input buffer; `q` in the widget
+hides it without stopping the active session. Press `<leader>ht` again to
+reopen it. Unlike OpenCode's Snacks terminal, this is a native Neovim chat UI.
+
 Hermes chat is enabled by default in the full profile. Disable it with
 `dotfiles.neovim.agentic.enable = false;`; the minimal profile leaves it
-disabled unless explicitly enabled. The provider, sidebar layout, and editor
-mappings are Nix data in `default.nix`; the Lua adapter only calls the plugin
-and registers mappings. OpenCode remains installed independently when enabled.
+disabled unless explicitly enabled. Provider, window layout, and editor
+mappings are configured declaratively in `default.nix`; the small
+`assets/nvim/plugin/agentic.lua` adapter loads those settings and creates
+the mappings. OpenCode remains available separately when enabled.
+
+**Global Hermes mappings** (from normal editor buffers):
 
 | Keys | Modes | Action |
 | --- | --- | --- |
-| `<leader>ht` | N, V | Toggle Hermes's interactive Agentic chat sidebar. |
-| `<leader>ha` | N, V | Send the current file or visual selection as context. |
-| `<leader>hn` | N | Start a new Hermes session. |
-| `<leader>hr` | N | Restore a Hermes session. |
-| `<leader>hd` | N | Send current-line diagnostics to Hermes. |
-| `<leader>hD` | N | Send buffer diagnostics to Hermes. |
+| `<leader>ht` (Space h t) | N, V | Toggle the chat sidebar. |
+| `<leader>ha` (Space h a) | N, V | Add the current file or a Visual selection to chat context. |
+| `<leader>hn` (Space h n) | N | Start a new conversation. |
+| `<leader>hr` (Space h r) | N | Restore a conversation supported by the Hermes ACP provider. |
+| `<leader>hd` (Space h d) | N | Add diagnostics at the cursor line. |
+| `<leader>hD` (Space h Shift-d) | N | Add all diagnostics from the current buffer. |
 
-Agentic uses `hermes acp` over stdio, not OpenCode or a separately defined
-model API. Hermes provides the agent's existing skills, memory, provider
-configuration, and available tools. The editor owns chat display, permissions,
-and file context. Hermes must be available in Neovim's PATH with its ACP
-dependency installed. Verify from fish:
+**Within Agentic's chat/prompt buffers**, the upstream plugin provides these
+mappings. Here `<localLeader>` is also Space in this configuration:
+
+| Keys | Where / mode | Action |
+| --- | --- | --- |
+| `<C-s>` | Prompt, N/V/I | Submit the prompt. |
+| `<CR>` | Prompt, N | Submit the prompt; Enter in Insert mode is not this mapping. |
+| `<localLeader>m` (Space m) | Widget, N | Select a model if Hermes exposes models over ACP. |
+| `<localLeader>l` (Space l) | Widget, N | Select among *currently live* Agentic sessions. |
+| `<localLeader>]` / `<localLeader>[` | Widget, N | Cycle to next/previous live session. |
+| `<localLeader>D` | Widget, N | Destroy the selected session (different from hiding it). |
+| `<localLeader>o` | Widget, N | Open Agentic options. |
+| `<localLeader>s` | Widget, N | Switch ACP provider when another provider is installed/configured. |
+| `<S-Tab>` | Widget, N/V/I | Switch agent mode *if Hermes advertises modes*. |
+| `q` | Widget, N | Hide the sidebar; keep the session running. |
+| `d` | Context item, N | Remove the file/selection/diagnostic under the cursor from context. |
+| `]]` / `[[` | Chat, N | Jump to next/previous chat heading. |
+| `]t` / `[t` | Chat, N | Jump to next/previous tool call. |
+| `]c` / `[c` | Diff preview, N | Jump to next/previous changed hunk. |
+
+**Useful prompt syntax and workflows:**
+
+- Type `@filename` in the prompt for workspace file autocomplete; multiple
+  references such as `@src/main.rs @Cargo.toml` are supported. Alternatively,
+  Visual-select code and use `<leader>ha` before asking for a change.
+- Type `/` at the beginning of a prompt to list ACP-advertised slash commands.
+  `/new` is provided by Agentic; additional slash commands depend on Hermes.
+- Use `<leader>hr` to restore provider-backed history; `Space l` inside the
+  widget selects among sessions already live in the current editor. Hiding a
+  sidebar does **not** destroy its session. Session restoration and model
+  switching depend on the capabilities Hermes advertises over ACP.
+- Review tool permissions and proposed file diffs in the chat UI. Diff previews
+  use Agentic's default split layout; `]c` and `[c` navigate diff hunks.
+  Confirm a proposed edit before accepting it when the agent requests approval.
+- To discuss an LSP error, place the cursor on the diagnostic and press
+  `<leader>hd`; use `<leader>hD` for the entire file.
+
+**Example coding workflow:** open a project file → Visual-select a function →
+`Space h a` → type “Refactor this function while preserving behavior” →
+`Ctrl-s` to send → inspect Hermes's proposed changes and approve or reject
+tool requests as appropriate. If the sidebar is hidden, `Space h t` reopens it.
+
+**How it connects:** Agentic launches `hermes acp` as an ACP subprocess over
+stdio. Hermes supplies its existing configuration, provider credentials,
+skills, memory, and available toolsets, rather than borrowing OpenCode's
+agent, prompts, or tools. Hermes may use its configured gateway/runtime; you
+do not enter a gateway URL or provider API key into this Neovim module.
+ACP mode uses an editor-oriented toolset, so not every Hermes CLI or messaging
+feature is available.
+
+**Commands and troubleshooting:**
 
 ```fish
 command -v hermes
 hermes acp --check
 ```
 
-`hermes acp` is an ACP subprocess; it communicates with the configured
-Hermes runtime/gateway where supported. Do not paste provider secrets into
-the Neovim module. Open the sidebar with `<leader>ht`, type a request,
-and use Agentic's built-in model/session selectors within the chat. Features
-exposed by the gateway can vary with Hermes ACP and its toolset configuration.
+From inside Neovim:
+
+```vim
+:checkhealth agentic
+:lua require("agentic").toggle()
+:lua require("agentic").new_session()
+:lua require("agentic").restore_session()
+:messages
+```
+
+The `:lua` commands are alternatives to the configured keybindings; they are
+not separate `:Agentic` Ex commands. If the chat cannot start, check that
+Hermes is in Neovim's PATH, its ACP dependency is installed, the plugin is
+enabled for the host, and the ACP health check passes. Your Hermes credentials
+and skills belong in Hermes's own configuration, **not** in this repo.
 
 ### OpenCode (conditional)
 
