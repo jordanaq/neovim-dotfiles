@@ -28,6 +28,7 @@ For example, a typical code-editing loop is: `<leader>ff` → open file → `gd`
 | `<leader>ff` | N | Find files with Snacks picker. |
 | `<leader>fg` | N | Grep project text with Snacks; `ripgrep` is installed. |
 | `<leader>fb` | N | Switch among open buffers. |
+| `<leader>bd` | N | Close the current buffer using Snacks.bufdelete without closing the pane. |
 | `<leader>fh` | N | Search Neovim help topics. |
 | `<leader>j` | N, V, O | Flash jump to a visible match. Useful for rapid cursor movement or as a motion. |
 | `<leader>J` | N, V, O | Flash Tree-sitter-aware syntax selection/jump. |
