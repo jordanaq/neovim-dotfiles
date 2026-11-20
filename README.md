@@ -7,9 +7,10 @@ Bash, Lua, Markdown, and Nix language servers and basic formatters.
 Minimal mode also restricts Tree-sitter parsers to those languages, omits
 the LTeX and VimTeX plugins, and disables the Ruby and Python providers.
 General-purpose editor plugins remain enabled.
-Home Manager installs the plugins from Nixpkgs. The OpenCode plugin uses a
-pinned upstream revision for compatibility with OpenCode 2 and loads on
-hosts with `programs.opencode.enable` enabled.
+Home Manager installs Neovim plugins from Nixpkgs or pinned upstream sources.
+The OpenCode plugin is conditional on `programs.opencode.enable`.
+The Hermes Agentic ACP chat interface is enabled on full-profile hosts by default;
+set `dotfiles.neovim.agentic.enable = false` to disable it.
 
 Heavily inspired by [Vimjoyer's Neovim guide](https://youtu.be/YZAnJ0rwREA?si=IJYKeHpk4viX1upY).
 
@@ -55,12 +56,20 @@ For installed plugins, keybindings, common workflows, language servers, formatti
 | `aF`/`iF`, `aC`/`iC`, `aP`/`iP` | Around/inside function, class, or parameter using Tree-sitter captures |
 | `sa`, `sd`, `sr` | Mini surround add/delete/replace |
 | `gc` | Mini comment |
+| `<leader>ht` | Toggle Hermes chat (Agentic.nvim) | 
+| `<leader>ha` | Add file/visual selection to Hermes context | 
+| `<leader>hn`, `<leader>hr` | New / restore Hermes session | 
+| `<leader>hd`, `<leader>hD` | Send line / buffer diagnostics to Hermes | 
 | `<leader>ot` | Toggle the OpenCode TUI in a Snacks terminal |
 | `<C-.>` | Toggle the OpenCode TUI from Normal or Terminal mode (terminal permitting) |
 | `<leader>uh` | Toggle inlay hints for the current buffer, when supported |
 | `<leader>oa` | Ask OpenCode about the visual selection or cursor |
 | `<leader>ox` | Open the OpenCode action picker |
 | `go` + motion, visual `go`, or `goo` | Send a range, selection, or line to OpenCode |
+
+Hermes runs through `hermes acp` and uses the existing Hermes skills, memory,
+models, and tools. Install Hermes with its ACP extra and verify `hermes acp --check`.
+The interactive chat uses a right-side Agentic.nvim panel. OpenCode remains available.
 
 OpenCode's Neovim integration targets the most recently updated session for
 the working directory. Use the TUI's `/sessions` and `/models` commands to
@@ -100,5 +109,6 @@ home-manager switch --flake '.?submodules=1#tsiru'
 nvim +checkhealth
 ```
 
-Run `:checkhealth opencode`, open the TUI with `<leader>ot`, and try
+Run `hermes acp --check` and open Hermes chat with `<leader>ht` on a full-profile host.
+Also run `:checkhealth opencode`, open the TUI with `<leader>ot`, and try
 `<leader>oa` on a visual selection.
