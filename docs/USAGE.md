@@ -6,16 +6,16 @@ The editor is managed by **NixOS/Home Manager**, not `lazy.nvim` or Mason. Home 
 
 ## Getting started
 
-- **Leader key:** `Space` (`<leader>`); local leader is also `Space`. Press `Space` and wait for **which-key** to show available groups and descriptions.
-- **Find a file:** `Space f f`; **search project text:** `Space f g`; **browse files:** `Space e`.
-- **Navigate code:** `gd` for definition, `gr` for references, `K` for hover documentation, `Space a` for code actions.
-- **Format the current buffer:** `Space c f` or `:Format`. Formatting is **manual**; saving does not invoke Conform.
-- **Inspect problems:** `Space x x` for workspace diagnostics or `Space x b` for the current buffer.
-- **Open OpenCode (when enabled):** `Space o t` for its terminal, `Space o a` to ask about the cursor/selection.
+- **Leader key:** `<leader>` is mapped to **Space** (`<Space>`); `<localleader>` is also Space. Press `<leader>` and wait for **which-key** to show available groups and descriptions.
+- **Find a file:** `<leader>ff`; **search project text:** `<leader>fg`; **browse files:** `<leader>e`.
+- **Navigate code:** `gd` for definition, `gr` for references, `K` for hover documentation, `<leader>a` for code actions.
+- **Format the current buffer:** `<leader>cf` or `:Format`. Formatting is **manual**; saving does not invoke Conform.
+- **Inspect problems:** `<leader>xx` for workspace diagnostics or `<leader>xb` for the current buffer.
+- **Open OpenCode (when enabled):** `<leader>ot` for its terminal, `<leader>oa` to ask about the cursor/selection.
 
-For example, a typical code-editing loop is: `Space f f` → open file → `gd`/`gr` → make edits → `Space c f` → `]h` to review the next changed Git hunk → `Space g s` to stage that hunk.
+For example, a typical code-editing loop is: `<leader>ff` → open file → `gd`/`gr` → make edits → `<leader>cf` → `]h` to review the next changed Git hunk → `<leader>gs` to stage that hunk.
 
-> In the binding tables below, `Space` means `<leader>`, and `Ctrl-.` means `<C-.>`. Modes are **Normal** (N), **Visual/Select** (V), **Operator-pending** (O), and **Terminal** (T). Some bindings appear only when a language server or Git integration attaches to the current buffer.
+> In all binding tables, `<leader>` represents the configured Space key, and `Ctrl-.` means `<C-.>`. Modes are **Normal** (N), **Visual/Select** (V), **Operator-pending** (O), and **Terminal** (T). Some bindings appear only when a language server or Git integration attaches to the current buffer.
 
 ## Keybinding reference
 
@@ -23,15 +23,15 @@ For example, a typical code-editing loop is: `Space f f` → open file → `gd`/
 
 | Keys | Modes | Action / when to use it |
 | --- | --- | --- |
-| `Space e` | N | Open the Snacks file explorer. |
-| `Space f f` | N | Find files with Snacks picker. |
-| `Space f g` | N | Grep project text with Snacks; `ripgrep` is installed. |
-| `Space f b` | N | Switch among open buffers. |
-| `Space f h` | N | Search Neovim help topics. |
-| `Space j` | N, V, O | Flash jump to a visible match. Useful for rapid cursor movement or as a motion. |
-| `Space J` | N, V, O | Flash Tree-sitter-aware syntax selection/jump. |
+| `<leader>e` | N | Open the Snacks file explorer. |
+| `<leader>ff` | N | Find files with Snacks picker. |
+| `<leader>fg` | N | Grep project text with Snacks; `ripgrep` is installed. |
+| `<leader>fb` | N | Switch among open buffers. |
+| `<leader>fh` | N | Search Neovim help topics. |
+| `<leader>j` | N, V, O | Flash jump to a visible match. Useful for rapid cursor movement or as a motion. |
+| `<leader>J` | N, V, O | Flash Tree-sitter-aware syntax selection/jump. |
 
-**Choosing tools:** use `Space f f` when you know a filename, `Space f g` when you know a text fragment, `Space f b` when a file is already open, and `Space e` when you want to explore the directory hierarchy. Flash is for moving *within visible text*, not searching the entire project.
+**Choosing tools:** use `<leader>ff` when you know a filename, `<leader>fg` when you know a text fragment, `<leader>fb` when a file is already open, and `<leader>e` when you want to explore the directory hierarchy. Flash is for moving *within visible text*, not searching the entire project.
 
 ### LSP: navigation, edits, and diagnostics
 
@@ -40,19 +40,19 @@ For example, a typical code-editing loop is: `Space f f` → open file → `gd`/
 | `gd` | LSP-attached buffer | Go to definition. |
 | `gD` | LSP-attached buffer | Go to declaration. |
 | `gI` | LSP-attached buffer | Go to implementation. |
-| `Space D` | LSP-attached buffer | Go to type definition. |
+| `<leader>D` | LSP-attached buffer | Go to type definition. |
 | `gr` | LSP-attached buffer | Search references in Snacks picker. |
-| `Space s` | LSP-attached buffer | Search document symbols. |
-| `Space S` | LSP-attached buffer | Search workspace symbols. |
+| `<leader>s` | LSP-attached buffer | Search document symbols. |
+| `<leader>S` | LSP-attached buffer | Search workspace symbols. |
 | `K` | LSP-attached buffer | Hover documentation. |
-| `Space r` | LSP-attached buffer | Rename symbol. |
-| `Space a` | LSP-attached buffer | Show available code actions. |
-| `Space u h` | LSP-attached buffer | Toggle inlay hints **only if** that language server supports them. |
+| `<leader>r` | LSP-attached buffer | Rename symbol. |
+| `<leader>a` | LSP-attached buffer | Show available code actions. |
+| `<leader>uh` | LSP-attached buffer | Toggle inlay hints **only if** that language server supports them. |
 | `gl` | N, global | Open a diagnostic float at the cursor. |
-| `Space x x` | N | Toggle Trouble's workspace diagnostics view. |
-| `Space x b` | N | Toggle Trouble diagnostics filtered to the current buffer. |
+| `<leader>xx` | N | Toggle Trouble's workspace diagnostics view. |
+| `<leader>xb` | N | Toggle Trouble diagnostics filtered to the current buffer. |
 
-`gr` is **references**; `Space g r` is **reset Git hunk**. These are separate bindings. LSP navigation and refactoring actions require an attached, capable language server; the mappings are created on `LspAttach`.
+`gr` is **references**; `<leader>gr` is **reset Git hunk**. These are separate bindings. LSP navigation and refactoring actions require an attached, capable language server; the mappings are created on `LspAttach`.
 
 ### Completions and snippets (blink.cmp)
 
@@ -91,9 +91,9 @@ The other active Mini modules are **icons**, **tabline**, and **statusline**. Mi
 | --- | --- |
 | `]h` | Next changed Git hunk. |
 | `[h` | Previous changed Git hunk. |
-| `Space g p` | Preview the current hunk. |
-| `Space g s` | Stage the current hunk. |
-| `Space g r` | Reset the current hunk's changes. **Destructive:** use carefully. |
+| `<leader>gp` | Preview the current hunk. |
+| `<leader>gs` | Stage the current hunk. |
+| `<leader>gr` | Reset the current hunk's changes. **Destructive:** use carefully. |
 
 These are buffer-local bindings added by Gitsigns when it attaches to a Git-tracked buffer. They operate on **hunks**, not entire files or commits. For whole-repository operations (commits, rebase, etc.), use Git in a terminal. There is no configured Git UI such as Lazygit or Neogit in this repository.
 
@@ -101,7 +101,7 @@ These are buffer-local bindings added by Gitsigns when it attaches to a Git-trac
 
 | Keys / command | Action |
 | --- | --- |
-| `Space c f` | Asynchronously format the current buffer. |
+| `<leader>cf` | Asynchronously format the current buffer. |
 | `:Format` | Same action from the command line. |
 | `:ConformInfo` | Inspect available configured formatters for the current file type (plugin-provided command). |
 
@@ -111,11 +111,11 @@ Conform tries the configured formatter and uses LSP formatting as a **fallback**
 
 | Keys | Action |
 | --- | --- |
-| `Space q s` | Restore the saved session for the current working directory/project. |
-| `Space q S` | Pick a saved session. |
-| `Space q l` | Restore the most recent session. |
+| `<leader>qs` | Restore the saved session for the current working directory/project. |
+| `<leader>qS` | Pick a saved session. |
+| `<leader>ql` | Restore the most recent session. |
 
-Open Neovim from the intended project directory if you want `Space q s` to restore that project's buffers and layout. Session restoration is not the same as Git state or unsaved file recovery.
+Open Neovim from the intended project directory if you want `<leader>qs` to restore that project's buffers and layout. Session restoration is not the same as Git state or unsaved file recovery.
 
 ### OpenCode (conditional)
 
@@ -123,17 +123,17 @@ These mappings exist **only when** the Home Manager option `programs.opencode.en
 
 | Keys | Modes | Action |
 | --- | --- | --- |
-| `Space o t` | N | Toggle OpenCode's TUI in a right-side Snacks terminal. |
+| `<leader>ot` | N | Toggle OpenCode's TUI in a right-side Snacks terminal. |
 | `Ctrl-.` | N, T | Toggle the TUI (only if your terminal correctly sends this key). |
-| `Space o a` | N, V | Ask OpenCode about the cursor or visual selection (`@this`). |
-| `Space o x` | N, V | Open the OpenCode action selector. |
+| `<leader>oa` | N, V | Ask OpenCode about the cursor or visual selection (`@this`). |
+| `<leader>ox` | N, V | Open the OpenCode action selector. |
 | `go` + motion | N | Use OpenCode's range operator on a motion. |
 | `go` | V | Send the selected range to OpenCode. |
 | `goo` | N | Send the current line to OpenCode. |
 
-Typical workflow: open a file → optionally select some code → `Space o a` → write a request in OpenCode. For a precise region, use a Visual selection or `go` with a Vim motion; use `goo` for one line. The integration targets the **most recently updated OpenCode session in the current working directory**. In the TUI, use `/sessions` and `/models` to browse sessions and models.
+Typical workflow: open a file → optionally select some code → `<leader>oa` → write a request in OpenCode. For a precise region, use a Visual selection or `go` with a Vim motion; use `goo` for one line. The integration targets the **most recently updated OpenCode session in the current working directory**. In the TUI, use `/sessions` and `/models` to browse sessions and models.
 
-**Save files before sending them as context.** For example, the plugin does not guarantee that unsaved edits are represented in external file context. If `Ctrl-.` does nothing in your terminal, use `Space o t` instead. The terminal opens on the **right** and initially does **not** steal focus.
+**Save files before sending them as context.** For example, the plugin does not guarantee that unsaved edits are represented in external file context. If `Ctrl-.` does nothing in your terminal, use `<leader>ot` instead. The terminal opens on the **right** and initially does **not** steal focus.
 
 The OpenCode binary, provider credentials, and model definitions are configured **outside** this Neovim repository. This repository configures the editor bridge, not your provider API keys. Check the separate OpenCode configuration when troubleshooting model selection or authentication.
 
@@ -193,7 +193,7 @@ LSP setup uses **Neovim's native LSP APIs** rather than calling `require('lspcon
 
 ## Formatter reference
 
-Formatting is explicitly requested with `Space c f` / `:Format`.
+Formatting is explicitly requested with `<leader>cf` / `:Format`.
 
 | Filetypes | Conform formatter | Provisioning |
 | --- | --- | --- |
@@ -265,15 +265,15 @@ Replace the Home Manager configuration name if using a different host/user. This
 
 | Symptom | Check |
 | --- | --- |
-| Forgot a keybinding | Press `Space` and wait for which-key, or inspect `:map`, `:nmap`, `:vmap`; `:verbose nmap <keys>` reports the definition. |
+| Forgot a keybinding | Press `<leader>` and wait for which-key, or inspect `:map`, `:nmap`, `:vmap`; `:verbose nmap <keys>` reports the definition. |
 | `gd`, `gr`, rename, etc. do nothing | Check whether an LSP attached: `:lua vim.print(vim.lsp.get_clients({ bufnr = 0 }))`; run `:checkhealth`. Verify the server is enabled in `default.nix` and available on PATH. |
 | Completion missing | Verify Blink is loaded, an appropriate source is available, and (for LSP completion) a server attached. Run `:checkhealth`. |
 | Formatter doesn't run | Use `:ConformInfo`, verify the executable on PATH, inspect the current filetype (`:set filetype?`), and check whether LSP fallback is available. |
-| `Space g s` doesn't work | Check you're editing a Git-tracked buffer and Gitsigns attached; compare `:map <leader>gs` in that buffer. |
-| `Space o ...` not mapped | Verify `programs.opencode.enable` and rebuild. Check `:checkhealth opencode`; OpenCode and its provider auth must be configured separately. |
-| `Ctrl-.` doesn't toggle OpenCode | Your terminal might not transmit that key distinctly; use `Space o t`. |
+| `<leader>gs` doesn't work | Check you're editing a Git-tracked buffer and Gitsigns attached; compare `:map <leader>gs` in that buffer. |
+| OpenCode `<leader>o` mappings missing | Verify `programs.opencode.enable` and rebuild. Check `:checkhealth opencode`; OpenCode and its provider auth must be configured separately. |
+| `Ctrl-.` doesn't toggle OpenCode | Your terminal might not transmit that key distinctly; use `<leader>ot`. |
 | Prose checks aren't working | Save the file (check frequency is **save**); verify LTeX/LTeX+ is attached and the Tailnet LanguageTool endpoint is reachable when applicable. Vale additionally needs `.vale.ini`. |
 | Syntax-dependent text objects fail | Verify your filetype and Tree-sitter parser/captures; minimal mode ships fewer parsers. |
-| Session restoration finds wrong layout | Start Neovim in the intended project's working directory, then use `Space q s` or choose a session with `Space q S`. |
+| Session restoration finds wrong layout | Start Neovim in the intended project's working directory, then use `<leader>qs` or choose a session with `<leader>qS`. |
 
 For a machine-specific problem, compare the active setup with the repository's [`README.md`](../README.md) and inspect the matching file under `assets/nvim/plugin/` before changing plugin defaults.
