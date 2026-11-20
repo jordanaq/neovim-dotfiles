@@ -1,6 +1,7 @@
 # Neovim
 
-Neovim is configured declaratively by Home Manager (`user/utils/neovim/default.nix`).
+Import `default.nix` as a Home Manager module. The dotfiles repository uses
+this module through its `user/utils/neovim` submodule.
 Home Manager installs the plugins from Nixpkgs. The OpenCode plugin uses a
 pinned upstream revision for compatibility with OpenCode 2.
 
@@ -74,7 +75,7 @@ checks style in projects with a `.vale.ini`.
 
 ## Test
 
-From the repository root on a clean review branch:
+From the dotfiles repository root with its submodules initialized:
 
 ```sh
 nix build '.?submodules=1#homeConfigurations.tsiru.activationPackage' --no-link
