@@ -46,6 +46,7 @@ For installed plugins, keybindings, common workflows, language servers, formatti
 | `<leader>ff` | Find files |
 | `<leader>fg` | Grep project |
 | `<leader>fb` | Find buffers |
+| `<leader>bd` | Close current buffer without closing the pane |
 | `<leader>fh` | Find Neovim help |
 | `<leader>s`, `<leader>S`, `gr` | Document symbols, workspace symbols, references (Snacks) |
 | `<leader>xx`, `<leader>xb` | Workspace/buffer diagnostics (Trouble) |
