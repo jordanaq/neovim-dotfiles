@@ -167,6 +167,9 @@ let
       path = ".ltex";
     };
 
+    # Inline Markdown rendering for ordinary files and the Hermes chat sidebar.
+    renderMarkdown.file_types = [ "markdown" "AgenticChat" ];
+
     # The ACP provider, layout, and editor mappings are defined in Nix.
     # assets/nvim/plugin/agentic.lua only translates this data into Neovim API calls.
     agentic = {
@@ -404,6 +407,11 @@ in
         }
         # Query files for mini.ai. Keep the mappings and selection logic in Mini.
         nvim-treesitter-textobjects
+        {
+          plugin = render-markdown-nvim;
+          type = "lua";
+          config = readLua ./assets/nvim/plugin/render-markdown.lua;
+        }
         vim-nix
       ] ++ lib.optional (!minimal) vimtex ++ [
         {
