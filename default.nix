@@ -227,7 +227,11 @@ let
 
     snacks = {
       input.enabled = true;
-      picker.enabled = true;
+      picker = {
+        enabled = true;
+        # Buffer picker: jump to an existing editor window showing the buffer.
+        sources.buffers.jump.reuse_win = true;
+      };
       explorer.enabled = true;
     };
 
