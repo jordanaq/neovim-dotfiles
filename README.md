@@ -2,8 +2,11 @@
 
 Import `default.nix` as a Home Manager module. The dotfiles repository uses
 this module through its `user/utils/neovim` submodule.
+Set `dotfiles.neovim.minimal = true` on hosts that need only the
+Bash, Lua, Markdown, and Nix language servers and basic formatters.
 Home Manager installs the plugins from Nixpkgs. The OpenCode plugin uses a
-pinned upstream revision for compatibility with OpenCode 2.
+pinned upstream revision for compatibility with OpenCode 2 and loads on
+hosts with `programs.opencode.enable` enabled.
 
 Heavily inspired by [Vimjoyer's Neovim guide](https://youtu.be/YZAnJ0rwREA?si=IJYKeHpk4viX1upY).
 
