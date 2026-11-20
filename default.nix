@@ -4,6 +4,7 @@ let
   readLua = builtins.readFile;
   minimal = config.dotfiles.neovim.minimal;
   opencodeEnabled = config.programs.opencode.enable or false;
+  agenticEnabled = config.dotfiles.neovim.agentic.enable;
   essentialServers = [ "bashls" "lua_ls" "marksman" "nil_ls" ];
 
   # The packaged 1.0.2 release uses the V1 API; upstream main supports OpenCode 2.
@@ -14,6 +15,17 @@ let
       repo = "opencode.nvim";
       rev = "4851ae503585dc5142ad66a98e8952a74e1f7b3a";
       hash = "sha256-Qhn8hGQ/S6SCV0GxsrS8nAPSq0ndwMNaEYhOw0Mv/Pc=";
+    };
+  };
+
+  # ACP chat is not packaged in nixpkgs yet. Pin the upstream commit so the
+  # Git checkout is immutable without adding a second plugin manager.
+  agenticPlugin = pkgs.vimUtils.buildVimPlugin {
+    pname = "agentic.nvim";
+    version = "unstable-2026-11-19";
+    src = builtins.fetchGit {
+      url = "https://github.com/carlos-algms/agentic.nvim";
+      rev = "4750d6ce4298b3018dd67f975a1457afbeeaa09f";
     };
   };
 
@@ -155,6 +167,37 @@ let
       path = ".ltex";
     };
 
+    # The ACP provider, layout, and editor mappings are defined in Nix.
+    # assets/nvim/plugin/agentic.lua only translates this data into Neovim API calls.
+    agentic = {
+      provider = "hermes-agent-acp";
+      acp_providers."hermes-agent-acp" = {
+        name = "Hermes Agent";
+        command = "hermes";
+        args = [ "acp" ];
+      };
+      windows = {
+        position = "right";
+        width = "40%";
+      };
+    };
+    agenticMappings = [
+      { lhs = "<leader>ht"; modes = [ "n" "x" ]; action = "toggle"; desc = "Toggle Hermes chat"; }
+      { lhs = "<leader>ha"; modes = [ "n" "x" ]; action = "add_selection_or_file_to_context"; desc = "Add file/selection to Hermes"; }
+      { lhs = "<leader>hn"; modes = [ "n" ]; action = "new_session"; desc = "New Hermes session"; }
+      { lhs = "<leader>hr"; modes = [ "n" ]; action = "restore_session"; desc = "Restore Hermes session"; }
+      { lhs = "<leader>hd"; modes = [ "n" ]; action = "add_current_line_diagnostics"; desc = "Send line diagnostics to Hermes"; }
+      { lhs = "<leader>hD"; modes = [ "n" ]; action = "add_buffer_diagnostics"; desc = "Send buffer diagnostics to Hermes"; }
+    ];
+    whichKeyGroups = {
+      f = "Find";
+      g = "Git";
+      o = "OpenCode";
+      q = "Sessions";
+      u = "UI toggles";
+      x = "Diagnostics";
+    } // lib.optionalAttrs agenticEnabled { h = "Hermes"; };
+
     blink = {
       keymap = {
         preset = "enter";
@@ -230,6 +273,12 @@ in
   options.dotfiles.neovim.minimal = lib.mkEnableOption
     "an essential set of language servers and formatters for headless hosts";
 
+  options.dotfiles.neovim.agentic.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = !minimal;
+    description = "Enable the Hermes ACP chat interface in Neovim (on by default outside minimal mode).";
+  };
+
   config = {
     xdg.configFile."nvim/dotfiles-settings.json".text = builtins.toJSON settings;
     xdg.configFile."nvim/lua/dotfiles/settings.lua".source = ./assets/nvim/lua/dotfiles/settings.lua;
@@ -265,7 +314,7 @@ in
         beamPackages.elixir
       ]) ++ lib.unique (lib.catAttrs "package" lspServers);
 
-      # Plugins are installed and pinned by Nixpkgs; no second plugin manager.
+      # Nix manages all plugins; pinned upstream revisions supplement nixpkgs.
       plugins = with pkgs.vimPlugins; [
         catppuccin-nvim
 
@@ -324,6 +373,10 @@ in
         plugin = opencodePlugin;
         type = "lua";
         config = readLua ./assets/nvim/plugin/opencode.lua;
+      } ++ lib.optional agenticEnabled {
+        plugin = agenticPlugin;
+        type = "lua";
+        config = readLua ./assets/nvim/plugin/agentic.lua;
       } ++ [
         {
           plugin = noice-nvim;

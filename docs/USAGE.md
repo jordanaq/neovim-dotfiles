@@ -11,6 +11,7 @@ The editor is managed by **NixOS/Home Manager**, not `lazy.nvim` or Mason. Home 
 - **Navigate code:** `gd` for definition, `gr` for references, `K` for hover documentation, `<leader>a` for code actions.
 - **Format the current buffer:** `<leader>cf` or `:Format`. Formatting is **manual**; saving does not invoke Conform.
 - **Inspect problems:** `<leader>xx` for workspace diagnostics or `<leader>xb` for the current buffer.
+- **Open Hermes chat (full profile):** `<leader>ht` for the interactive ACP sidebar, `<leader>ha` to send a file or selection.
 - **Open OpenCode (when enabled):** `<leader>ot` for its terminal, `<leader>oa` to ask about the cursor/selection.
 
 For example, a typical code-editing loop is: `<leader>ff` → open file → `gd`/`gr` → make edits → `<leader>cf` → `]h` to review the next changed Git hunk → `<leader>gs` to stage that hunk.
@@ -117,6 +118,105 @@ Conform tries the configured formatter and uses LSP formatting as a **fallback**
 
 Open Neovim from the intended project directory if you want `<leader>qs` to restore that project's buffers and layout. Session restoration is not the same as Git state or unsaved file recovery.
 
+### Hermes Agent (Agentic.nvim / ACP)
+
+**Open Hermes chat:** in Normal mode, press `<leader>ht` (**Space**, then **h**,
+then **t**). Agentic opens an interactive right-hand sidebar, configured to use
+40% of Neovim's width. Type a prompt in its input buffer; `q` in the widget
+hides it without stopping the active session. Press `<leader>ht` again to
+reopen it. Unlike OpenCode's Snacks terminal, this is a native Neovim chat UI.
+
+Hermes chat is enabled by default in the full profile. Disable it with
+`dotfiles.neovim.agentic.enable = false;`; the minimal profile leaves it
+disabled unless explicitly enabled. Provider, window layout, and editor
+mappings are configured declaratively in `default.nix`; the small
+`assets/nvim/plugin/agentic.lua` adapter loads those settings and creates
+the mappings. OpenCode remains available separately when enabled.
+
+**Global Hermes mappings** (from normal editor buffers):
+
+| Keys | Modes | Action |
+| --- | --- | --- |
+| `<leader>ht` (Space h t) | N, V | Toggle the chat sidebar. |
+| `<leader>ha` (Space h a) | N, V | Add the current file or a Visual selection to chat context. |
+| `<leader>hn` (Space h n) | N | Start a new conversation. |
+| `<leader>hr` (Space h r) | N | Restore a conversation supported by the Hermes ACP provider. |
+| `<leader>hd` (Space h d) | N | Add diagnostics at the cursor line. |
+| `<leader>hD` (Space h Shift-d) | N | Add all diagnostics from the current buffer. |
+
+**Within Agentic's chat/prompt buffers**, the upstream plugin provides these
+mappings. Here `<localLeader>` is also Space in this configuration:
+
+| Keys | Where / mode | Action |
+| --- | --- | --- |
+| `<C-s>` | Prompt, N/V/I | Submit the prompt. |
+| `<CR>` | Prompt, N | Submit the prompt; Enter in Insert mode is not this mapping. |
+| `<localLeader>m` (Space m) | Widget, N | Select a model if Hermes exposes models over ACP. |
+| `<localLeader>l` (Space l) | Widget, N | Select among *currently live* Agentic sessions. |
+| `<localLeader>]` / `<localLeader>[` | Widget, N | Cycle to next/previous live session. |
+| `<localLeader>D` | Widget, N | Destroy the selected session (different from hiding it). |
+| `<localLeader>o` | Widget, N | Open Agentic options. |
+| `<localLeader>s` | Widget, N | Switch ACP provider when another provider is installed/configured. |
+| `<S-Tab>` | Widget, N/V/I | Switch agent mode *if Hermes advertises modes*. |
+| `q` | Widget, N | Hide the sidebar; keep the session running. |
+| `d` | Context item, N | Remove the file/selection/diagnostic under the cursor from context. |
+| `]]` / `[[` | Chat, N | Jump to next/previous chat heading. |
+| `]t` / `[t` | Chat, N | Jump to next/previous tool call. |
+| `]c` / `[c` | Diff preview, N | Jump to next/previous changed hunk. |
+
+**Useful prompt syntax and workflows:**
+
+- Type `@filename` in the prompt for workspace file autocomplete; multiple
+  references such as `@src/main.rs @Cargo.toml` are supported. Alternatively,
+  Visual-select code and use `<leader>ha` before asking for a change.
+- Type `/` at the beginning of a prompt to list ACP-advertised slash commands.
+  `/new` is provided by Agentic; additional slash commands depend on Hermes.
+- Use `<leader>hr` to restore provider-backed history; `Space l` inside the
+  widget selects among sessions already live in the current editor. Hiding a
+  sidebar does **not** destroy its session. Session restoration and model
+  switching depend on the capabilities Hermes advertises over ACP.
+- Review tool permissions and proposed file diffs in the chat UI. Diff previews
+  use Agentic's default split layout; `]c` and `[c` navigate diff hunks.
+  Confirm a proposed edit before accepting it when the agent requests approval.
+- To discuss an LSP error, place the cursor on the diagnostic and press
+  `<leader>hd`; use `<leader>hD` for the entire file.
+
+**Example coding workflow:** open a project file → Visual-select a function →
+`Space h a` → type “Refactor this function while preserving behavior” →
+`Ctrl-s` to send → inspect Hermes's proposed changes and approve or reject
+tool requests as appropriate. If the sidebar is hidden, `Space h t` reopens it.
+
+**How it connects:** Agentic launches `hermes acp` as an ACP subprocess over
+stdio. Hermes supplies its existing configuration, provider credentials,
+skills, memory, and available toolsets, rather than borrowing OpenCode's
+agent, prompts, or tools. Hermes may use its configured gateway/runtime; you
+do not enter a gateway URL or provider API key into this Neovim module.
+ACP mode uses an editor-oriented toolset, so not every Hermes CLI or messaging
+feature is available.
+
+**Commands and troubleshooting:**
+
+```fish
+command -v hermes
+hermes acp --check
+```
+
+From inside Neovim:
+
+```vim
+:checkhealth agentic
+:lua require("agentic").toggle()
+:lua require("agentic").new_session()
+:lua require("agentic").restore_session()
+:messages
+```
+
+The `:lua` commands are alternatives to the configured keybindings; they are
+not separate `:Agentic` Ex commands. If the chat cannot start, check that
+Hermes is in Neovim's PATH, its ACP dependency is installed, the plugin is
+enabled for the host, and the ACP health check passes. Your Hermes credentials
+and skills belong in Hermes's own configuration, **not** in this repo.
+
 ### OpenCode (conditional)
 
 These mappings exist **only when** the Home Manager option `programs.opencode.enable` is enabled and the OpenCode Neovim integration is installed.
@@ -161,6 +261,7 @@ Every plugin below is declared in [`default.nix`](../default.nix). Plugin setup 
 | **which-key.nvim** | Shortcut discovery | Labels Find, Git, OpenCode, Sessions, UI toggles, Diagnostics groups. |
 | **ltex_extra.nvim** | LTeX vocabulary/state | **Full profile only**; persistent dictionaries, disabled rules, false-positive state. |
 | **vimtex** | LaTeX editing | **Full profile only**; PDF viewer method set to Zathura (viewer must be installed separately). |
+| **agentic.nvim** (`carlos-algms`) | Hermes ACP chat | Full profile by default, configurable with `dotfiles.neovim.agentic.enable`; pinned upstream Git revision. |
 | **opencode.nvim** (`nickjvandyke`) | AI assistant integration | **When `programs.opencode.enable` is true**; pinned upstream commit for OpenCode 2 compatibility. |
 
 **Not installed here:** `lazy.nvim` as a plugin manager, Telescope, Neo-tree, nvim-cmp, LuaSnip, standalone Comment.nvim/Bufferline/Lualine/devicons, `neodev.nvim`, or `obsidian.nvim`. This matters when looking up setup instructions: use the tools above rather than instructions for the replaced plugins.
@@ -235,6 +336,7 @@ Set `dotfiles.neovim.minimal = true` in the importing Home Manager/NixOS configu
 | `ltex_extra.nvim`, `vimtex` | Included | Omitted |
 | Python and Ruby Neovim providers | Enabled | Disabled |
 | Snacks, Blink, Mini, Git, Trouble, Flash, Conform, etc. | Included | Included |
+| Hermes Agentic integration | Enabled by default | Disabled by default; explicitly opt in |
 | OpenCode integration | Conditional on `programs.opencode.enable` | Same condition |
 
 The minimal profile is useful for small/headless machines where keeping only basic language tooling is preferable. Note that `programs.opencode.enable` is **independent** of the minimal switch.
@@ -243,7 +345,7 @@ The minimal profile is useful for small/headless machines where keeping only bas
 
 | Path | Responsibility |
 | --- | --- |
-| [`default.nix`](../default.nix) | Home Manager module, plugin list, language servers, formatter packages, shared settings, `minimal` option. |
+| [`default.nix`](../default.nix) | Home Manager module, plugin list, Hermes/Agentic provider and keymaps, language servers, formatters, shared settings. |
 | [`assets/nvim/init.lua`](../assets/nvim/init.lua) | Apply editor settings, colorscheme, filetypes, yank highlight, C/C++ indentation override. |
 | [`assets/nvim/lua/dotfiles/settings.lua`](../assets/nvim/lua/dotfiles/settings.lua) | Read generated `dotfiles-settings.json`. |
 | [`assets/nvim/plugin/`](../assets/nvim/plugin/) | Plugin setup and explicit mappings. |
@@ -270,6 +372,7 @@ Replace the Home Manager configuration name if using a different host/user. This
 | Completion missing | Verify Blink is loaded, an appropriate source is available, and (for LSP completion) a server attached. Run `:checkhealth`. |
 | Formatter doesn't run | Use `:ConformInfo`, verify the executable on PATH, inspect the current filetype (`:set filetype?`), and check whether LSP fallback is available. |
 | `<leader>gs` doesn't work | Check you're editing a Git-tracked buffer and Gitsigns attached; compare `:map <leader>gs` in that buffer. |
+| Hermes chat doesn't open | Confirm `dotfiles.neovim.agentic.enable` is on for this host and that `hermes acp --check` succeeds in fish. Verify the Hermes executable is in Neovim's PATH. |
 | OpenCode `<leader>o` mappings missing | Verify `programs.opencode.enable` and rebuild. Check `:checkhealth opencode`; OpenCode and its provider auth must be configured separately. |
 | `Ctrl-.` doesn't toggle OpenCode | Your terminal might not transmit that key distinctly; use `<leader>ot`. |
 | Prose checks aren't working | Save the file (check frequency is **save**); verify LTeX/LTeX+ is attached and the Tailnet LanguageTool endpoint is reachable when applicable. Vale additionally needs `.vale.ini`. |
