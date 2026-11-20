@@ -13,6 +13,10 @@ hosts with `programs.opencode.enable` enabled.
 
 Heavily inspired by [Vimjoyer's Neovim guide](https://youtu.be/YZAnJ0rwREA?si=IJYKeHpk4viX1upY).
 
+## Usage documentation
+
+For installed plugins, keybindings, common workflows, language servers, formatting, OpenCode integration, and troubleshooting, see the [Neovim usage guide](docs/USAGE.md).
+
 ## What changed
 
 - `blink.cmp` + native `vim.snippet` replace `nvim-cmp`, the cmp sources,
