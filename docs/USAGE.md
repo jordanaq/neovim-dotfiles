@@ -119,6 +119,22 @@ Conform tries the configured formatter and uses LSP formatting as a **fallback**
 
 Open Neovim from the intended project directory if you want `<leader>qs` to restore that project's buffers and layout. Session restoration is not the same as Git state or unsaved file recovery.
 
+### Markdown rendering (render-markdown.nvim)
+
+\`render-markdown.nvim\` decorates Markdown directly inside Neovim, including normal
+\`markdown\` files and Hermes responses in Agentic's \`AgenticChat\` sidebar. It
+uses the existing Tree-sitter Markdown parsers and Mini icons; neither Obsidian
+nor a browser preview is required. Rendering is enabled by default in Normal
+mode and gives way to raw Markdown while editing in Insert mode.
+
+- \`:RenderMarkdown toggle\` toggles rendering globally.
+- \`:RenderMarkdown buf_toggle\` toggles rendering for the current buffer.
+- \`:RenderMarkdown preview\` opens a separate rendered split.
+
+This changes presentation only: \`marksman\` still handles Markdown language
+features, and \`:Format\` still formats files using Prettier when available.
+The filetype settings live in \`default.nix\`.
+
 ### Hermes Agent (Agentic.nvim / ACP)
 
 **Open Hermes chat:** in Normal mode, press `<leader>ht` (**Space**, then **h**,
@@ -257,6 +273,7 @@ Every plugin below is declared in [`default.nix`](../default.nix). Plugin setup 
 | **noice.nvim** | UI for messages and prompts | Command palette, bottom search, long-message splits, LSP Markdown rendering. |
 | **persistence.nvim** | Sessions | Restore current, selected, or last session. |
 | **nvim-treesitter** | Syntax trees/highlighting | Starts Tree-sitter for available filetypes/parsers. |
+| **render-markdown.nvim** | In-buffer Markdown rendering | Renders ordinary Markdown files and the Agentic chat sidebar. |
 | **nvim-treesitter-textobjects** | Syntax-aware objects | Supplies query captures consumed by Mini.ai. |
 | **vim-nix** | Nix editing | Nix filetype/syntax support. |
 | **which-key.nvim** | Shortcut discovery | Labels Find, Git, OpenCode, Sessions, UI toggles, Diagnostics groups. |
