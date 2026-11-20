@@ -275,8 +275,6 @@ in
           type = "lua";
           config = readLua ./assets/nvim/plugin/lsp.lua;
         }
-        ltex_extra-nvim
-
         # Mini replaces Comment.nvim, Bufferline, Lualine and devicons, while
         # also adding surround and richer text objects.
         {
@@ -312,7 +310,7 @@ in
           config = readLua ./assets/nvim/plugin/format.lua;
         }
 
-      ] ++ lib.optional opencodeEnabled {
+      ] ++ lib.optional (!minimal) ltex_extra-nvim ++ lib.optional opencodeEnabled {
         plugin = opencodePlugin;
         type = "lua";
         config = readLua ./assets/nvim/plugin/opencode.lua;
@@ -332,16 +330,18 @@ in
           config = readLua ./assets/nvim/plugin/persistence.lua;
         }
 
-        # Preserve all grammars for the existing broad and niche language set.
+        # Minimal hosts only need parsers for the essential language set.
         {
-          plugin = nvim-treesitter.withAllGrammars;
+          plugin = if minimal then nvim-treesitter.withPlugins (parsers: with parsers; [
+            bash lua markdown markdown_inline nix
+          ]) else nvim-treesitter.withAllGrammars;
           type = "lua";
           config = readLua ./assets/nvim/plugin/treesitter.lua;
         }
         # Query files for mini.ai. Keep the mappings and selection logic in Mini.
         nvim-treesitter-textobjects
         vim-nix
-        vimtex
+      ] ++ lib.optional (!minimal) vimtex ++ [
         {
           plugin = which-key-nvim;
           type = "lua";
