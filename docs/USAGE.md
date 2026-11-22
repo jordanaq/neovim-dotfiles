@@ -119,6 +119,25 @@ Conform tries the configured formatter and uses LSP formatting as a **fallback**
 
 Open Neovim from the intended project directory if you want `<leader>qs` to restore that project's buffers and layout. Session restoration is not the same as Git state or unsaved file recovery.
 
+### Code folding (nvim-ufo)
+
+UFO provides Tree-sitter-aware code folding with indentation fallback. Files
+open with folds expanded; the fold gutter is shown at the left. Folding works
+independently of LSP availability. When a Tree-sitter grammar is unavailable,
+the indent provider is used instead.
+
+| Keys | Action |
+| --- | --- |
+| `za` | Toggle the fold under the cursor. |
+| `zc` / `zo` | Close/open the fold under the cursor. |
+| `zM` / `zR` | Close/open all folds through UFO. |
+| `zK` | Preview the folded text under the cursor in a rounded floating window. |
+| `zm` / `zr` | Close/open one fold level. |
+
+`K` remains the LSP hover documentation binding; fold previews use `zK`
+instead. The plugin is declared in `default.nix` and configured in
+`assets/nvim/plugin/ufo.lua`.
+
 ### Markdown rendering (render-markdown.nvim)
 
 \`render-markdown.nvim\` decorates Markdown directly inside Neovim, including normal
@@ -275,6 +294,8 @@ Every plugin below is declared in [`default.nix`](../default.nix). Plugin setup 
 | **nvim-treesitter** | Syntax trees/highlighting | Starts Tree-sitter for available filetypes/parsers. |
 | **render-markdown.nvim** | In-buffer Markdown rendering | Renders ordinary Markdown files and the Agentic chat sidebar. |
 | **nvim-treesitter-textobjects** | Syntax-aware objects | Supplies query captures consumed by Mini.ai. |
+| **nvim-ufo** | Syntax-aware code folding | Tree-sitter folds, indentation fallback, and folded-code previews. |
+| **promise-async** | UFO dependency | Provides UFO's asynchronous operations. |
 | **vim-nix** | Nix editing | Nix filetype/syntax support. |
 | **which-key.nvim** | Shortcut discovery | Labels Find, Git, OpenCode, Sessions, UI toggles, Diagnostics groups. |
 | **ltex_extra.nvim** | LTeX vocabulary/state | **Full profile only**; persistent dictionaries, disabled rules, false-positive state. |
