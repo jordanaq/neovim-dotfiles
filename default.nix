@@ -127,6 +127,11 @@ let
         expandtab = true;
         updatetime = 300;
         termguicolors = true;
+        # UFO owns fold ranges; keep folds open on entry.
+        foldcolumn = "1";
+        foldlevel = 99;
+        foldlevelstart = 99;
+        foldenable = true;
         mouse = "a";
         undofile = true;
         ignorecase = true;
@@ -407,6 +412,13 @@ in
         }
         # Query files for mini.ai. Keep the mappings and selection logic in Mini.
         nvim-treesitter-textobjects
+        # Syntax-aware folding with indentation fallback.
+        promise-async
+        {
+          plugin = nvim-ufo;
+          type = "lua";
+          config = readLua ./assets/nvim/plugin/ufo.lua;
+        }
         {
           plugin = render-markdown-nvim;
           type = "lua";
