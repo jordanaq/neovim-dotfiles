@@ -10,6 +10,26 @@ end
 vim.cmd.colorscheme(settings.colorscheme)
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { noremap = true, silent = true })
 
+-- Save gutter options per window so toggling never changes other splits.
+vim.keymap.set("n", "<leader>un", function()
+  local saved = vim.w._saved_gutter_options
+  if saved then
+    vim.wo.number = saved.number
+    vim.wo.relativenumber = saved.relativenumber
+    vim.wo.foldcolumn = saved.foldcolumn
+    vim.w._saved_gutter_options = nil
+  else
+    vim.w._saved_gutter_options = {
+      number = vim.wo.number,
+      relativenumber = vim.wo.relativenumber,
+      foldcolumn = vim.wo.foldcolumn,
+    }
+    vim.wo.number = false
+    vim.wo.relativenumber = false
+    vim.wo.foldcolumn = "0"
+  end
+end, { desc = "Toggle line numbers and fold gutter (current window)" })
+
 vim.cmd("filetype plugin indent on")
 vim.cmd("syntax enable")
 vim.filetype.add(settings.editor.filetypes)
