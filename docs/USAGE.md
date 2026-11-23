@@ -133,6 +133,11 @@ the indent provider is used instead.
 | `zM` / `zR` | Close/open all folds through UFO. |
 | `zK` | Preview the folded text under the cursor in a rounded floating window. |
 | `zm` / `zr` | Close/open one fold level. |
+| `<leader>un` | Hide/show line numbers and the fold gutter in the current pane only. |
+
+`<leader>un` is window-local: it preserves the current pane's number, relative
+number, and fold-column settings and restores them on the next toggle. Other
+splits are unaffected, and code folding still works while the gutter is hidden.
 
 `K` remains the LSP hover documentation binding; fold previews use `zK`
 instead. The plugin is declared in `default.nix` and configured in
